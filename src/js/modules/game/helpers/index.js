@@ -62,12 +62,19 @@ export const moveClickedElement = (matrix, clickedElementPosition) => {
     : matrix
 }
 
-export const renderCell = (arr, container) => {
+export const renderCell = (arr, container, currentSize = 4) => {
   container.innerHTML = ''
 
   arr.forEach((items) => {
     container.insertAdjacentHTML('beforeend', fifteenCellHTML(items))
   })
+
+  const itemsCell = container.querySelectorAll('.board__item')
+
+  itemsCell.forEach((item) => {
+    item.style.width = `${100 / currentSize}%`
+    item.style.height = `${100 / currentSize}%`
+  });
 }
 
 export const setPositionItems = (matrix) => {

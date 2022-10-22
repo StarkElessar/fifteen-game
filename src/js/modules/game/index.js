@@ -1,4 +1,3 @@
-import { fifteenCellHTML } from './helpers/fifteenCellHTML'
 import {
   generateRandomNumber,
   getShuffledRange,
@@ -13,12 +12,29 @@ import {
 } from './helpers'
 
 export const createGame = () => {
+  const settingsContainer = document.getElementById('settings')
+  const settingButtons = settingsContainer.querySelectorAll('.settings__btn')
+  let matrix
+
+  settingsContainer.addEventListener('click', (event) => {
+    const settingButton = event.target.closest('button')
+    const indexSetBoard = Number(settingButton.dataset.size)
+
+    matrix = generateMatrix(indexSetBoard)
+    renderCell(matrix.flat(), board, indexSetBoard)
+    setPositionItems(matrix)
+    settingButtons.forEach(btn => {
+      btn.classList.remove('_active')
+    });
+    document.querySelector(`[data-size="${indexSetBoard}"]`).classList.add('_active')
+  })
+
+
   const frameDimensions = [3, 4, 5, 6, 7, 8]
   const defaultFrameDimension = frameDimensions[1]
   const currentFrameDimension = defaultFrameDimension
   const board = document.getElementById('board')
-  let matrix = generateMatrix(currentFrameDimension)
-  console.log(matrix)
+  matrix = generateMatrix(currentFrameDimension)
 
   renderCell(matrix.flat(), board)
   setPositionItems(matrix)
