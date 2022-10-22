@@ -1,0 +1,32 @@
+.menu {
+  // .menu__list
+  &__list {
+    display: flex;
+    column-gap: rem(20);
+    row-gap: rem(10);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  // .menu__item
+  &__item {}
+  // .menu__control
+  &__control {
+    color: #fff;
+    background-color: $mainColor;
+    padding: rem(8) rem(12);
+    border-radius: rem($mainRadius);
+    transition: $standartTrans;
+    &:hover {
+      background-color: darken($mainColor, 5%);
+      box-shadow: 0 0 rem(10) rgba(#000, 10%);
+    }
+    &:active {
+      background-color: #2c9672;
+    }
+    &:disabled {
+      background-color: rgba($mainColor, 40%);
+      cursor: no-drop;
+      box-shadow: none;
+    }
+  }
+}

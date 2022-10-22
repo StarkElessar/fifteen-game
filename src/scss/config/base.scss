@@ -1,0 +1,39 @@
+body {
+  .lock {
+    overflow: hidden;
+  }
+}
+[class*="__container"] {
+  max-width: rem($containerWidth + $mainOffset * 2);
+  margin: 0 auto;
+  padding: 0 rem($mainOffset);
+}
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  overflow: hidden;
+}
+.page {
+  position: relative;
+  flex: 1 1 auto;
+  padding-top: rem(60);
+  &__container {
+    max-width: rem(600);
+    text-align: center;
+  }
+
+  [data-observ] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: rem(2);
+    background: transparent;
+    pointer-events: none;
+  }
+
+  &_start {
+    padding-top: rem($headerHeight);
+  }
+}
