@@ -1,0 +1,1 @@
+export const equals = (a, b) => a.every((element, i) => element === b[i])

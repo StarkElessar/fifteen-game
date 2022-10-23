@@ -1,15 +1,9 @@
-import {
-  generateRandomNumber,
-  getShuffledRange,
-  generateMatrix,
-  equals,
-  isAbleToMove,
-  swapElements,
-  moveClickedElement,
-  findElementPosition,
-  renderCell,
-  setPositionItems,
-} from './helpers'
+import { generateMatrix } from './helpers/generateMatrix'
+import { renderCell } from './helpers/renderCell'
+import { setPositionItems } from './helpers/setPositionItems'
+import { findElementPosition } from './helpers/findElementPosition'
+import { swapElements } from './helpers/swapElements'
+import { moveClickedElement } from './helpers/moveClickedElement'
 
 export const createGame = () => {
   const settingsContainer = document.getElementById('settings')

@@ -1,4 +1,5 @@
-import { isWebp, headerFixed } from './modules'
+import { isWebp, headerFixed } from './modules/baseFunctions'
+import {renderHTML} from './modules/renderHTML'
 /* Раскомментировать для использования */
 // import { MousePRLX } from './libs/parallaxMouse'
 import { createGame } from './modules/game'
@@ -7,7 +8,6 @@ import { createGame } from './modules/game'
 // import Swiper, { Navigation, Pagination } from 'swiper'
 
 isWebp()
-
 // Паралакс мышей ====================================================================================================================================================
 // const mousePrlx = new MousePRLX({})
 // ====================================================================================================================================================
@@ -16,4 +16,5 @@ isWebp()
 // headerFixed()
 // ====================================================================================================================================================
 
+renderHTML()
 createGame()

@@ -1,0 +1,33 @@
+.settings {
+  margin-top: rem(12);
+  // .settings__list
+  &__list {
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    grid-template-columns: repeat(auto-fit, minmax(rem(78), 1fr));
+    gap: rem(16);
+  }
+  // .settings__item
+  &__item {
+  }
+  // .settings__btn
+  &__btn {
+    width: 100%;
+    height: rem(40);
+    border-radius: rem($mainRadius);
+    transition: $standartTrans;
+    background-color: transparent;
+    color: #b17cca;
+    box-shadow: 0 0 rem(4) rgba(#000, 40%);
+    border: 1px solid #b17cca;
+    &._active {
+      background-color: #b17cca;
+      color: #fff;
+    }
+    &:hover {
+      background-color: #b17cca;
+      color: #fff;
+    }
+  }
+}
