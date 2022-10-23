@@ -1,5 +1,57 @@
 .settings {
   margin-top: rem(12);
+  // .settings__statistic-group
+  &__statistic-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: rem(16);
+    @include media(425) {
+      flex-direction: column;
+      align-items: flex-start;
+      row-gap: rem(12);
+    }
+  }
+  // .settings__count
+  &__count {
+    display: flex;
+    align-items: center;
+    @include media(425) {
+      justify-content: space-between;
+      width: 100%;
+    }
+    // .settings__count_label
+    &_label {
+      font-size: rem(14);
+      color: #666;
+      margin-right: rem(8);
+    }
+    // .settings__count_number
+    &_number {
+      font-weight: 700;
+      font-size: rem(16);
+    }
+  }
+  // .settings__time
+  &__time {
+    display: flex;
+    align-items: center;
+    @include media(425) {
+      justify-content: space-between;
+      width: 100%;
+    }
+    // .settings__time_label
+    &_label {
+      font-size: rem(14);
+      color: #666;
+      margin-right: rem(8);
+    }
+    // .settings__time_numbers
+    &_numbers {
+      font-weight: 700;
+      font-size: rem(16);
+    }
+  }
   // .settings__list
   &__list {
     display: grid;
@@ -22,12 +74,17 @@
     box-shadow: 0 0 rem(4) rgba(#000, 40%);
     border: 1px solid #b17cca;
     &._active {
-      background-color: #b17cca;
       color: #fff;
+      cursor: no-drop;
+      background-color: #b17cca;
     }
+    
     &:hover {
-      background-color: #b17cca;
       color: #fff;
+      background-color: #b17cca;
+    }
+    &:active {
+      background-color: $mainColor;
     }
   }
 }

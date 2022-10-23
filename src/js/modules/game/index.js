@@ -4,53 +4,117 @@ import { setPositionItems } from './helpers/setPositionItems'
 import { findElementPosition } from './helpers/findElementPosition'
 import { swapElements } from './helpers/swapElements'
 import { moveClickedElement } from './helpers/moveClickedElement'
+import { isAbleToMove } from './helpers/isAbleToMove'
 
 export const createGame = () => {
+  const navigationMenu = document.getElementById('menu')
+  const board = document.getElementById('board')
   const settingsContainer = document.getElementById('settings')
   const settingButtons = settingsContainer.querySelectorAll('.settings__btn')
-  let matrix
+  const stopButton = navigationMenu.querySelector('#stop-game')
+  const placeCount = document.getElementById('count')
+  const placeTime = document.getElementById('time')
 
-  settingsContainer.addEventListener('click', (event) => {
-    const settingButton = event.target.closest('button')
-    const indexSetBoard = Number(settingButton.dataset.size)
+  const resultStat = JSON.parse(localStorage.getItem('results')) || new Object()
+  let clickCount = JSON.parse(localStorage.getItem('count')) || 0
+  let status = false
+  let currentFrameDimension = 4
+  let matrix = JSON.parse(localStorage.getItem('setupMatrix')) || generateMatrix(currentFrameDimension)
 
-    matrix = generateMatrix(indexSetBoard)
-    renderCell(matrix.flat(), board, indexSetBoard)
-    setPositionItems(matrix)
-    settingButtons.forEach(btn => {
-      btn.classList.remove('_active')
-    });
-    document.querySelector(`[data-size="${indexSetBoard}"]`).classList.add('_active')
-  })
-
-
-  const frameDimensions = [3, 4, 5, 6, 7, 8]
-  const defaultFrameDimension = frameDimensions[1]
-  const currentFrameDimension = defaultFrameDimension
-  const board = document.getElementById('board')
-  matrix = generateMatrix(currentFrameDimension)
+  placeCount.innerHTML = clickCount
 
   renderCell(matrix.flat(), board)
   setPositionItems(matrix)
 
-  document.getElementById('shuffle-start').addEventListener('click', () => {
-    const startTime = new Date()
-    console.log(startTime)
-    matrix = generateMatrix(currentFrameDimension)
+  navigationMenu.addEventListener('click', (event) => {
+    const target = event.target
+    let startTime = ''
+    let stopTime = ''
+    let resultTime = ''
 
-    renderCell(matrix.flat(), board)
-    setPositionItems(matrix)
+    if (target && target.id === 'shuffle-start') {
+      status = true
+      clickCount = 0
+      placeCount.innerHTML = clickCount
+      matrix = generateMatrix(currentFrameDimension)
+
+      localStorage.removeItem('setupMatrix')
+      localStorage.removeItem('count')
+
+      renderCell(matrix.flat(), board, currentFrameDimension)
+      setPositionItems(matrix)
+
+      startTime = new Date()
+
+      if (status) {
+        stopButton.removeAttribute('disabled')
+      }
+
+      console.log(resultStat)
+    }
+
+    if (target && target.id === 'stop-game') {
+      stopButton.setAttribute('disabled', true)
+      status = false
+      stopTime = new Date()
+      resultTime = stopTime - startTime
+
+      resultStat[resultTime] = {}
+      resultStat[resultTime]['Количество шагов'] = clickCount
+      resultStat[resultTime]['Пройденное время'] = resultTime
+
+      console.log(resultStat)
+      localStorage.setItem('results', JSON.stringify(resultStat))
+
+      clickCount = 0
+      stopTime = 0
+      startTime = 0
+      resultTime = 0
+    }
+
+    if (target && target.id === 'results') {
+      alert(JSON.stringify(resultStat))
+    }
+
+    if (target && target.id === 'save-process') {
+      localStorage.setItem('setupMatrix', JSON.stringify(matrix))
+      localStorage.setItem('count', JSON.stringify(clickCount))
+    }
   })
   board.addEventListener('click', (event) => {
+    const target = event.target
     const buttonNode = event.target.closest('button')
-    const buttonNumber = JSON.parse(buttonNode.dataset.id)
 
-    if (!buttonNode) return
+    if (target && buttonNode) {
+      const buttonNumber = JSON.parse(buttonNode.dataset.id)
+      const clickedElementPosition = findElementPosition(matrix, buttonNumber)
+      const emptyElementPosition = findElementPosition(matrix)
 
-    const clickedElementPosition = findElementPosition(matrix, buttonNumber)
-    matrix = moveClickedElement(matrix, clickedElementPosition)
+      matrix = moveClickedElement(matrix, clickedElementPosition)
+      setPositionItems(matrix)
 
+      if (isAbleToMove(clickedElementPosition, emptyElementPosition)) {
+        clickCount += 1
+        placeCount.innerHTML = clickCount
+      }
+    }
+  })
+  settingsContainer.addEventListener('click', (event) => {
+    const settingButton = event.target.closest('button')
+    const indexSetBoard = Number(settingButton.dataset.size)
+    const currentSettingButton = document.querySelector(`[data-size="${indexSetBoard}"]`)
+
+    currentFrameDimension = indexSetBoard
+    matrix = generateMatrix(currentFrameDimension)
+    renderCell(matrix.flat(), board, currentFrameDimension)
     setPositionItems(matrix)
+
+    settingButtons.forEach((btn) => {
+      btn.classList.remove('_active')
+      btn.removeAttribute('disabled')
+    })
+    currentSettingButton.classList.add('_active')
+    currentSettingButton.setAttribute('disabled', true)
   })
   window.addEventListener('keydown', (event) => {
     if (!event.key.includes('Arrow')) return
@@ -94,5 +158,8 @@ export const createGame = () => {
       emptyCellX,
     ])
     setPositionItems(matrix)
+    clickCount += 1
+    placeCount.innerHTML = clickCount
   })
+  console.log(clickCount)
 }
