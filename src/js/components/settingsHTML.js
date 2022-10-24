@@ -7,7 +7,7 @@ export const settingsHTML = () => `
       </div>
       <div class="settings__time">
         <span class="settings__time_label">Время прохождения:</span>
-        <span class="settings__time_numbers" id="time">-- / --</span>
+        <span class="settings__time_numbers" id="time"><span id="minutes">--</span> : <span id="seconds">--</span></span>
       </div>
     </div>
     <ul class="settings__list">

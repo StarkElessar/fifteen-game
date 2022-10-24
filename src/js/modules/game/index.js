@@ -5,6 +5,7 @@ import { findElementPosition } from './helpers/findElementPosition'
 import { swapElements } from './helpers/swapElements'
 import { moveClickedElement } from './helpers/moveClickedElement'
 import { isAbleToMove } from './helpers/isAbleToMove'
+import { timer } from './../timer'
 
 export const createGame = () => {
   const navigationMenu = document.getElementById('menu')
@@ -13,13 +14,23 @@ export const createGame = () => {
   const settingButtons = settingsContainer.querySelectorAll('.settings__btn')
   const stopButton = navigationMenu.querySelector('#stop-game')
   const placeCount = document.getElementById('count')
-  const placeTime = document.getElementById('time')
+  const placeMinutes = document.getElementById('minutes')
+  const placeSeconds = document.getElementById('seconds')
 
   const resultStat = JSON.parse(localStorage.getItem('results')) || new Object()
+  const resArr = JSON.parse(localStorage.getItem('resultList')) || new Array()
+  const objRes = {}
+
   let clickCount = JSON.parse(localStorage.getItem('count')) || 0
   let status = false
   let currentFrameDimension = 4
   let matrix = JSON.parse(localStorage.getItem('setupMatrix')) || generateMatrix(currentFrameDimension)
+  let interval
+
+  const timeObject = {
+    minutes: 0,
+    seconds: 0
+  }
 
   placeCount.innerHTML = clickCount
 
@@ -51,6 +62,11 @@ export const createGame = () => {
       }
 
       console.log(resultStat)
+
+      clearInterval(interval)
+      interval = setInterval(() => {
+        timer(placeMinutes, placeSeconds, timeObject)
+      }, 1000)
     }
 
     if (target && target.id === 'stop-game') {
@@ -61,15 +77,32 @@ export const createGame = () => {
 
       resultStat[resultTime] = {}
       resultStat[resultTime]['Количество шагов'] = clickCount
-      resultStat[resultTime]['Пройденное время'] = resultTime
+      resultStat[resultTime]['Пройденное время'] = `${timeObject.minutes} минут, ${timeObject.seconds} секунд`
 
       console.log(resultStat)
       localStorage.setItem('results', JSON.stringify(resultStat))
+      
+      objRes["step"] = clickCount
+      objRes["time"] = `${timeObject.minutes} минут, ${timeObject.seconds} секунд`
 
+      resArr.push(objRes)
+
+      localStorage.setItem('resultList', JSON.stringify(resArr))
+
+      objRes["step"] = null
+      objRes["time"] = null
+
+        
       clickCount = 0
       stopTime = 0
       startTime = 0
       resultTime = 0
+
+      console.log(timeObject);
+      clearInterval(interval)
+      timeObject.minutes = 0
+      timeObject.seconds = 0
+
     }
 
     if (target && target.id === 'results') {
@@ -102,7 +135,9 @@ export const createGame = () => {
   settingsContainer.addEventListener('click', (event) => {
     const settingButton = event.target.closest('button')
     const indexSetBoard = Number(settingButton.dataset.size)
-    const currentSettingButton = document.querySelector(`[data-size="${indexSetBoard}"]`)
+    const currentSettingButton = document.querySelector(
+      `[data-size="${indexSetBoard}"]`
+    )
 
     currentFrameDimension = indexSetBoard
     matrix = generateMatrix(currentFrameDimension)
