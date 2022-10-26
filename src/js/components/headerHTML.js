@@ -8,9 +8,6 @@ export const headerHTML = () => `
             <button class="menu__control" type="button" id="shuffle-start">Shuffle and start</button>
           </li>
           <li class="menu__item">
-            <button class="menu__control" type="button" disabled id="stop-game">Stop</button>
-          </li>
-          <li class="menu__item">
             <button class="menu__control" type="button" id="save-process">Save</button>
           </li>
           <li class="menu__item">

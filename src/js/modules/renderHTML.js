@@ -3,12 +3,14 @@ import { mainPageHTML } from '../components/mainPageHTML'
 import { footerHTML } from '../components/footerHTML'
 import { boardContainerHTML } from '../components/boardContainerHTML'
 import { settingsHTML } from '../components/settingsHTML'
+import { scoreModalHTML } from '../components/scoreModalHTML'
 
 export const renderHTML = () => {
   const wrapper = document.createElement('div')
 
   wrapper.classList.add('wrapper')
-  document.body.append(wrapper)
+  document.body.prepend(wrapper)
+  document.body.insertAdjacentHTML('afterbegin', scoreModalHTML())
 
   wrapper.insertAdjacentHTML('beforeend', headerHTML())
   wrapper.insertAdjacentHTML('beforeend', mainPageHTML())

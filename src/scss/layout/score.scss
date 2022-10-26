@@ -1,0 +1,107 @@
+.score {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  visibility: hidden;
+  transition: $standartTrans;
+  background-color: rgba(255, 255, 255, 0.822);
+  z-index: 100;
+  padding: rem(20) rem(16);
+  overflow-y: auto;
+  &._show {
+    opacity: 1;
+    visibility: visible;
+    .score__body {
+      top: 0;
+    }
+  }
+  // .score__body
+  &__body {
+    position: relative;
+    border-radius: rem(10);
+    background-color: $blackColor;
+    box-shadow: $lightBoxShadow;
+    max-width: rem(700);
+    padding: rem(36) rem(16);
+    margin: 0 auto;
+    display: flex;
+    top: rem(-40);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: $standartTrans;
+    @include media(425) {
+      padding-left: rem(4);
+      padding-right: rem(4);
+    }
+  }
+  // .score__button-close
+  &__button-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: rem(40);
+    height: rem(40);
+    background-color: transparent;
+    &::after,
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+      width: rem(24);
+      height: rem(2);
+      border-radius: rem(4);
+    }
+    &::after {
+      transform: translate(-50%, -50%) rotate(45deg);
+    }
+    &::before {
+      transform: translate(-50%, -50%) rotate(-45deg);
+    }
+  }
+  // .score__title
+  &__title {
+    text-align: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: rem(36);
+    margin-bottom: rem(18);
+    @include media(425) {
+      font-size: rem(21);
+    }
+  }
+  // .score__list
+  &__list {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    row-gap: rem(18);
+    @include media(425) {
+      row-gap: rem(12);
+    }
+  }
+  // .score__item
+  &__item {
+    display: flex;
+    align-items: center;
+    color: #fff;
+  }
+  // .score__label
+  &__label {
+    font-weight: 700;
+    color: #fff;
+    padding-right: rem(2);
+    font-size: rem(14);
+  }
+  // .score__value
+  &__value {
+    color: #fff;
+    padding-right: rem(4);
+  }
+}

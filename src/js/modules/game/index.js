@@ -5,113 +5,102 @@ import { findElementPosition } from './helpers/findElementPosition'
 import { swapElements } from './helpers/swapElements'
 import { moveClickedElement } from './helpers/moveClickedElement'
 import { isAbleToMove } from './helpers/isAbleToMove'
+import { saveResults } from './helpers/saveResults'
+import { disabledButtoncurrentSet } from './helpers/disabledButtoncurrentSet'
+import { itemScoreHTML } from '../../components/itemScoreHTML'
+import { getLC } from './helpers/getLC'
 import { timer } from './../timer'
 
 export const createGame = () => {
+  const scoreModal = document.getElementById('score-modal')
+  const scoreList = scoreModal.querySelector('#score-list')
   const navigationMenu = document.getElementById('menu')
   const board = document.getElementById('board')
   const settingsContainer = document.getElementById('settings')
   const settingButtons = settingsContainer.querySelectorAll('.settings__btn')
-  const stopButton = navigationMenu.querySelector('#stop-game')
   const placeCount = document.getElementById('count')
   const placeMinutes = document.getElementById('minutes')
   const placeSeconds = document.getElementById('seconds')
 
-  const resultStat = JSON.parse(localStorage.getItem('results')) || new Object()
-  const resArr = JSON.parse(localStorage.getItem('resultList')) || new Array()
-  const objRes = {}
-
-  let clickCount = JSON.parse(localStorage.getItem('count')) || 0
-  let status = false
-  let currentFrameDimension = 4
-  let matrix = JSON.parse(localStorage.getItem('setupMatrix')) || generateMatrix(currentFrameDimension)
-  let interval
-
+  const statistic = getLC('resultList') || new Array()
+  const isShuffled = true
   const timeObject = {
-    minutes: 0,
-    seconds: 0
+    minutes: getLC('saveGame') ? getLC('saveGame').minutes : 0,
+    seconds: getLC('saveGame') ? getLC('saveGame').seconds : 0,
   }
+  
+  let interval
+  let startTime = 0
+  let idGame = statistic.length || 0
+  let currentFrameDimension = getLC('saveGame') ? getLC('saveGame').currentSize : 4
+  
+  console.log('start: ', currentFrameDimension);
+  
+  let matrix = getLC('saveGame') ? getLC('saveGame').matrix : generateMatrix(currentFrameDimension)
+  let trueMatrix = generateMatrix(currentFrameDimension)
+  let clickCount = getLC('saveGame') ? getLC('saveGame').clickCount : 0
 
   placeCount.innerHTML = clickCount
 
-  renderCell(matrix.flat(), board)
+  renderCell(matrix.flat(), board, currentFrameDimension)
   setPositionItems(matrix)
+
+  if (getLC('saveGame')) {
+    disabledButtoncurrentSet(settingButtons, currentFrameDimension, board, isShuffled)
+
+    interval = setInterval(() => {
+      timer(placeMinutes, placeSeconds, timeObject)
+    }, 1000)
+  } else {
+    disabledButtoncurrentSet(settingButtons, currentFrameDimension, board)
+  }
 
   navigationMenu.addEventListener('click', (event) => {
     const target = event.target
-    let startTime = ''
-    let stopTime = ''
-    let resultTime = ''
 
     if (target && target.id === 'shuffle-start') {
-      status = true
       clickCount = 0
       placeCount.innerHTML = clickCount
-      matrix = generateMatrix(currentFrameDimension)
-
-      localStorage.removeItem('setupMatrix')
-      localStorage.removeItem('count')
-
-      renderCell(matrix.flat(), board, currentFrameDimension)
-      setPositionItems(matrix)
-
-      startTime = new Date()
-
-      if (status) {
-        stopButton.removeAttribute('disabled')
+      console.log('shuffle-start: ', currentFrameDimension);
+      matrix = generateMatrix(currentFrameDimension, isShuffled)
+      startTime = Date.parse(new Date())
+      board.classList.remove('_lock')
+      
+      if (board.classList.contains('_win')) { 
+        board.classList.remove('_win')
       }
 
-      console.log(resultStat)
+      localStorage.removeItem('saveGame')
+
+      setPositionItems(matrix)
 
       clearInterval(interval)
+      timeObject.minutes = 0
+      timeObject.seconds = 0
       interval = setInterval(() => {
         timer(placeMinutes, placeSeconds, timeObject)
       }, 1000)
     }
 
-    if (target && target.id === 'stop-game') {
-      stopButton.setAttribute('disabled', true)
-      status = false
-      stopTime = new Date()
-      resultTime = stopTime - startTime
-
-      resultStat[resultTime] = {}
-      resultStat[resultTime]['Количество шагов'] = clickCount
-      resultStat[resultTime]['Пройденное время'] = `${timeObject.minutes} минут, ${timeObject.seconds} секунд`
-
-      console.log(resultStat)
-      localStorage.setItem('results', JSON.stringify(resultStat))
+    if (target && target.id === 'save-process') {
+      localStorage.setItem('saveGame', JSON.stringify({
+        matrix,
+        currentSize: currentFrameDimension,
+        clickCount,
+        minutes: timeObject.minutes,
+        seconds: timeObject.seconds
+      }))
       
-      objRes["step"] = clickCount
-      objRes["time"] = `${timeObject.minutes} минут, ${timeObject.seconds} секунд`
-
-      resArr.push(objRes)
-
-      localStorage.setItem('resultList', JSON.stringify(resArr))
-
-      objRes["step"] = null
-      objRes["time"] = null
-
-        
-      clickCount = 0
-      stopTime = 0
-      startTime = 0
-      resultTime = 0
-
-      console.log(timeObject);
-      clearInterval(interval)
-      timeObject.minutes = 0
-      timeObject.seconds = 0
-
+      alert('Ваша игра успешно сохранена!')
     }
 
     if (target && target.id === 'results') {
-      alert(JSON.stringify(resultStat))
-    }
-
-    if (target && target.id === 'save-process') {
-      localStorage.setItem('setupMatrix', JSON.stringify(matrix))
-      localStorage.setItem('count', JSON.stringify(clickCount))
+      const sortedStatistic = statistic.sort((a, b) => a.victoryTime - b.victoryTime).slice(0, 10)
+      scoreList.innerHTML = ''
+      sortedStatistic.forEach((item, index) => {
+        scoreList.insertAdjacentHTML('beforeend', itemScoreHTML(item, index))
+      })
+      scoreModal.classList.add('_show')
     }
   })
   board.addEventListener('click', (event) => {
@@ -130,71 +119,116 @@ export const createGame = () => {
         clickCount += 1
         placeCount.innerHTML = clickCount
       }
+
+      if (JSON.stringify(matrix) === JSON.stringify(trueMatrix)) {
+        const minutes = timeObject.minutes <= 9 ? `0${timeObject.minutes}` : timeObject.minutes
+        const seconds = timeObject.seconds <= 9 ? `0${timeObject.seconds}` : timeObject.seconds
+
+        alert(`Ура, Ты решил головоломку за ${minutes}:${seconds} и ${clickCount} ходов!`)
+
+        statistic[idGame] = saveResults(
+          clickCount,
+          minutes,
+          seconds,
+          Date.parse(new Date()) - startTime,
+          currentFrameDimension
+        )
+
+        localStorage.setItem('resultList', JSON.stringify(statistic))
+
+        idGame++
+        clickCount = 0
+
+        clearInterval(interval)
+        timeObject.minutes = 0
+        timeObject.seconds = 0
+
+        board.classList.add('_lock', '_win')
+      }
     }
   })
   settingsContainer.addEventListener('click', (event) => {
-    const settingButton = event.target.closest('button')
-    const indexSetBoard = Number(settingButton.dataset.size)
-    const currentSettingButton = document.querySelector(
-      `[data-size="${indexSetBoard}"]`
-    )
+    const target = event.target
 
-    currentFrameDimension = indexSetBoard
-    matrix = generateMatrix(currentFrameDimension)
-    renderCell(matrix.flat(), board, currentFrameDimension)
-    setPositionItems(matrix)
+    if (target && target.hasAttribute('data-size')) {
+      currentFrameDimension = Number(event.target.closest('button').dataset.size)
+      trueMatrix = generateMatrix(currentFrameDimension)
+      matrix = generateMatrix(currentFrameDimension)
+      renderCell(matrix.flat(), board, currentFrameDimension)
+      setPositionItems(matrix)
+      disabledButtoncurrentSet(settingButtons, currentFrameDimension, board)
 
-    settingButtons.forEach((btn) => {
-      btn.classList.remove('_active')
-      btn.removeAttribute('disabled')
-    })
-    currentSettingButton.classList.add('_active')
-    currentSettingButton.setAttribute('disabled', true)
+      clearInterval(interval)
+      timeObject.minutes = 0
+      timeObject.seconds = 0
+
+      if (board.classList.contains('_win')) { 
+        board.classList.remove('_win')
+      }
+    }
   })
   window.addEventListener('keydown', (event) => {
     if (!event.key.includes('Arrow')) return
 
     let [emptyCellY, emptyCellX] = findElementPosition(matrix)
-
     const direction = event.key.split('Arrow')[1].toLowerCase()
-    const maxIndexMatrix = matrix.length
 
     switch (direction) {
       case 'up':
         emptyCellY += 1
-        console.log('up\ny: ', emptyCellY)
         break
       case 'down':
         emptyCellY -= 1
-        console.log('down\ny: ', emptyCellY)
         break
       case 'left':
         emptyCellX += 1
-        console.log('left\nx: ', emptyCellX)
         break
       case 'right':
         emptyCellX -= 1
-        console.log('right\nx: ', emptyCellX)
         break
     }
 
-    if (
-      emptyCellY >= maxIndexMatrix ||
-      emptyCellY < 0 ||
-      emptyCellX >= maxIndexMatrix ||
-      emptyCellX < 0
-    ) {
+    if (emptyCellY >= matrix.length || emptyCellY < 0 || emptyCellX >= matrix.length || emptyCellX < 0) {
       return
     }
 
     const swapedElementPosition = findElementPosition(matrix)
-    matrix = swapElements(matrix, swapedElementPosition, [
-      emptyCellY,
-      emptyCellX,
-    ])
+    matrix = swapElements(matrix, swapedElementPosition, [emptyCellY, emptyCellX])
     setPositionItems(matrix)
     clickCount += 1
     placeCount.innerHTML = clickCount
+
+    if (JSON.stringify(matrix) === JSON.stringify(trueMatrix)) {
+      const minutes = timeObject.minutes <= 9 ? `0${timeObject.minutes}` : timeObject.minutes
+      const seconds = timeObject.seconds <= 9 ? `0${timeObject.seconds}` : timeObject.seconds
+
+      alert(`Ура, Ты решил головоломку за ${minutes}:${seconds} и ${clickCount} ходов!`)
+
+      statistic[idGame] = saveResults(
+        clickCount,
+        minutes,
+        seconds,
+        Date.parse(new Date()) - startTime,
+        currentFrameDimension
+      )
+
+      localStorage.setItem('resultList', JSON.stringify(statistic))
+
+      idGame++
+      clickCount = 0
+
+      clearInterval(interval)
+      timeObject.minutes = 0
+      timeObject.seconds = 0
+
+      board.classList.add('_lock _win')
+    }
   })
-  console.log(clickCount)
+  document.addEventListener('click', (event) => {
+    const target = event.target
+
+    if (target && (target.classList.contains('score') || target.closest('.score__button-close'))) {
+      scoreModal.classList.remove('_show')
+    }
+  })
 }

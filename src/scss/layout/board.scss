@@ -8,6 +8,17 @@
   inset 0 0 rem(4) rgba(#000, 15%), 
   inset 0 0 rem(8) rgba(#000, 15%),
   inset 0 0 rem(12) rgba(#000, 15%);
+  &._lock {
+    pointer-events: none;
+  }
+  &._win {
+    .board__item {
+      background-color: #b17cca;
+      &::after {
+        animation: win-anim 2s infinite ease-in-out;
+      }
+    }
+  }
   // .board__item
   &__item {
     background-color: $mainColor;
@@ -58,5 +69,18 @@
       border-radius: rem($mainRadius);
       transition: all 350ms;
     }
+  }
+}
+
+@keyframes win-anim {
+  0% {
+    width: 80%;
+    height: 80%;
+  } 50% {
+    width: 90%;
+    height: 90%;
+  } 100% {
+    width: 80%;
+    height: 80%;
   }
 }
